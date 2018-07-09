@@ -1,10 +1,10 @@
 # cran-server
 
-- [Quick Start](#Quick-Start)
-- [Features](#Features)
-- [Installation](#Installation)
-- [Usage](#Usage)
-- [Configuration](#Configuration)
+- [Quick Start](#quick-start)
+- [Features](#features)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Configuration](#configuration)
 
 ## Quick Start
 
