@@ -1,0 +1,10 @@
+# Emacs auto-save files
+\#*#
+
+# Python Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Ignore .env file
+.env
