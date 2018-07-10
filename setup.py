@@ -6,7 +6,7 @@ with io.open('README.md', 'rt', encoding='utf8') as f:
     readme = f.read()
 
 setup(
-    name='cran-server',
+    name='cranserver',
     version='1.0.0',
     url='http://github.com/UptakeOpenSource/cran-server',
     license='MIT',

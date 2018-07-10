@@ -12,11 +12,11 @@ RUN mkdir -p "/opt/cran/uploads" && \
     touch "/opt/cran/src/contrib/PACKAGES"
 
 
-COPY cran-server/ /opt/cran-server/
+COPY cran-server/ /opt/cranserver/
 
-ENV FLASK_APP /opt/cran-server/server.py
+ENV FLASK_APP /opt/cranserver/server.py
 
-ENV PYTHONPATH /opt/cran-server/
+ENV PYTHONPATH /opt/cranserver/
 
 EXPOSE 8000
 

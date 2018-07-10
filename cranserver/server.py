@@ -94,7 +94,7 @@ def home():
             try:
                 if gotten:
                     file_loc = os.path.join('src/contrib', file.filename)
-                    pkg = Package(file)
+                    pkg = Package.from_tarball(file)
                     desc = pkg.description()
                     file.seek(0)
                     if pkg in storage:
