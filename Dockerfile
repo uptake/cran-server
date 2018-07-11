@@ -1,4 +1,4 @@
-from continuumio/miniconda3
+FROM continuumio/miniconda3
 MAINTAINER Troy de Freitas "troy.defreitas@uptake.com", Nick Paras "nick.paras@uptake.com"
 
 RUN apt-get update -y && apt-get install -y python-pip
