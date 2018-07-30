@@ -14,8 +14,6 @@ from flask import send_file
 from flask import abort
 from flask import render_template
 
-import boto3
-import botocore
 import fasteners
 
 from lib.package import Package
@@ -63,14 +61,16 @@ def get_available():
     packages = storage.packages()
     pkg_dict = {}
     for p in packages:
+        if not p:
+            continue
         pkg_name = p.get('name')
         pkg_version = p.get('version')
         pkg_date = p.get('date')
+        p['date'] = pkg_date.isoformat()  # convert date to string for JSON
         if pkg_dict.get(pkg_name) is not None:
             pkg_dict[pkg_name].append(p)
         else:
             pkg_dict[pkg_name] = [p]
-
     f = lambda x: x.get('date')
     results = list({'name': k, 'artifacts': sorted(v, key=f, reverse=True)}
                    for k, v in pkg_dict.items())
@@ -81,7 +81,6 @@ def get_available():
 def home():
     if request.method == "GET":
         return render_template('index.html')
-
     elif request.method == "POST":
         if 'file' not in request.files:
             return redirect(request.url)
@@ -95,16 +94,14 @@ def home():
                 if gotten:
                     file_loc = os.path.join('src/contrib', file.filename)
                     pkg = Package.from_tarball(file)
-                    desc = pkg.description()
                     file.seek(0)
                     if pkg in storage:
-                        abort(CONFLICT_CODE, "This package version already exists on the server.")
-                    # TODO Locking logic should be implemented at the storage level
+                        abort(CONFLICT_CODE, 'This package version already exists on the server.')
                     storage.push(pkg)
-                    return "All done!"
+                    return 'OK'
                 else:
                     print('Locking Error on Package Upload')
-                    abort(500, "The server is busy, please try again")
+                    abort(500, 'The server is busy, please try again')
             finally:
                 if gotten:
                     a_lock.release()
@@ -117,9 +114,9 @@ def packages(path):
     try:
         if gotten:
             pkg_name = os.path.basename(path)
-            pkg = storage.fetch(pkg_name)
-            # convert pkg to file object
-            return send_file(pkg, mimetype='application/octet-stream')
+            pkg_fobj = storage.fetch(pkg_name)
+            with storage.fetch(pkg_name) as pkg_fobj:
+                return send_file(pkg_fobj, mimetype='application/octet-stream')
         else:
             print('Locking Error on Package Upload')
             abort(LOCK_CODE, 'The server is busy, please try again')

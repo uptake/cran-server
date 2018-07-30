@@ -1,14 +1,8 @@
 #!/usr/bin/env python
-import pathlib
-import tempfile
-import os
-
 import pytest
-import requests
 
 from cranserver.lib.package import Package
 
-PKG_URL = "https://cran.r-project.org/src/contrib/httr_1.3.1.tar.gz"
 PKG_VERSION = "1.3.1"
 PKG_DESCRIPTION = """Package: httr
 Version: 1.3.1
@@ -37,26 +31,6 @@ Maintainer: Hadley Wickham <hadley@rstudio.com>
 Repository: CRAN
 Date/Publication: 2017-08-20 14:44:14 UTC
 """
-
-
-@pytest.fixture
-def cran_src_dir_empty():
-    p = pathlib.Path(tempfile.mkdtemp())
-    (p / 'src/contrib').mkdir(parents=True)
-    os.chdir(p)
-
-@pytest.fixture
-def tarball_loc(cran_src_dir_empty):
-    r = requests.get(PKG_URL, stream=True)
-    filename = 'httr_1.3.1.tar.gz'
-    with open(filename, 'wb') as fd:
-        for chunk in r.iter_content(chunk_size=128):
-            fd.write(chunk)
-    return filename
-
-@pytest.fixture
-def pkg(tarball_loc):
-    return Package('httr', open(tarball_loc, 'rb'))
 
 
 class TestPackage:

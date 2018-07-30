@@ -1,9 +1,9 @@
 FROM continuumio/miniconda3
 MAINTAINER Troy de Freitas "troy.defreitas@uptake.com", Nick Paras "nick.paras@uptake.com"
 
-RUN apt-get update -y && apt-get install -y python-pip
+RUN apt-get update -y && apt-get install -y python3-pip
 
-RUN pip install flask boto3 gunicorn fasteners
+RUN pip3 install flask boto3 gunicorn fasteners
 
 RUN mkdir -p "/opt/cran/uploads" && \
     mkdir -p "/opt/cran/src/contrib/" && \
@@ -11,8 +11,7 @@ RUN mkdir -p "/opt/cran/uploads" && \
     mkdir -p "/opt/templates" && \
     touch "/opt/cran/src/contrib/PACKAGES"
 
-
-COPY cran-server/ /opt/cranserver/
+COPY cranserver/ /opt/cranserver/
 
 ENV FLASK_APP /opt/cranserver/server.py
 
