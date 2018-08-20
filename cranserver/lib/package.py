@@ -4,23 +4,26 @@ import os
 
 class Package:
 
-    def __init__(self, name, fobj):
-        # private
-        self._fileobj = fobj
-        self._tar = None
+    def __init__(self, fileobj):
+        self._fileobj = fileobj
         self._description = None
-
-        # public
-        self.name = name
 
     def _untar(self):
         return tarfile.open(fileobj=self._fileobj, mode="r:gz")
 
     def description(self):
-        if not self._description and not self._tar:
-            self._tar = self._untar()
-            self._description = self._extract_desc(self._tar)
+        if not self._description:
+            self._description = self._extract_desc(self._untar())
+            self._fileobj.seek(0)
         return self._description
+
+    @property
+    def fileobj(self):
+        return self._fileobj
+
+    @property
+    def name(self):
+        return self._attr_from_description('Package', self.description())
 
     @property
     def version(self):
@@ -30,11 +33,13 @@ class Package:
     def id(self):
         return self.name + '_' + self.version
 
+    @property
+    def filename(self):
+        return self.id + '.tar.gz'
+
     @classmethod
     def from_tarball(cls, fileobj):
-        desc = cls._extract_desc(tarfile.open(fileobj=fileobj, mode="r:gz"))
-        name = cls._attr_from_description('Package', desc)
-        return cls(name, fileobj)
+        return cls(fileobj)
 
     @staticmethod
     def _extract_desc(tarf):

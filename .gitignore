@@ -9,3 +9,7 @@ __pycache__/
 
 # Ignore .env file
 .env
+
+# Others
+.cache
+*.tar.gz

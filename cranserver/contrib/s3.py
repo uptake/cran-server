@@ -1,5 +1,7 @@
 import os
 import io
+from contextlib import contextmanager
+
 import boto3
 import botocore
 from lib.storage import Storage
@@ -14,7 +16,7 @@ class S3Storage(Storage):
         self.bucket = s3.Bucket(self._bucket_loc)
 
     def _objects(self, dir_prefix='dev'):
-        prefix = dir_prefix + '/src/contrib/'
+        prefix = dir_prefix + '/src/contrib'
         return self.bucket.objects.filter(Prefix=prefix)
 
     def ls(self, dir_prefix='dev'):
@@ -27,20 +29,23 @@ class S3Storage(Storage):
         return obj.key.split('/')[-1].replace('.tar.gz', '').split('_')
 
     def _s3obj_to_pkg_dict(self, obj):
-        _name, _version = self._pkg_tupl(obj)
+        try:
+            _name, _version = self._pkg_tupl(obj)
+            return {
+                'key': obj.key,
+                'name': _name,
+                'version': _version,
+                'date': obj.last_modified.date(),
+                'artifact_link': None
+            }
+        except ValueError as e:
+            return None
 
-        return {
-            'key': obj.key,
-            'name': _name,
-            'version': _version,
-            'date': obj.last_modified.date(),
-            'artifact_link': None
-        }
-
+    @contextmanager
     def fetch(self, pkg):
         target = io.StringIO()
         self.bucket.download_fileobj(pkg, target)
-        return Package(target)
+        yield target
 
     def push(self, pkg):
         self.bucket.upload_fileobj(pkg._fileobj, pkg.name())

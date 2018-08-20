@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 import os
+import shutil
 import time
 
 
@@ -26,51 +27,52 @@ class Storage(ABC):
 
 
 class FileStorage(Storage):
-    _PACKAGES = "src/contrib/PACKAGES"
 
     def __init__(self, directory):
         self.directory = directory
 
-    # TODO(troy.defreitas@uptake.com) This should be part of the abstract base class
-    def __contains__(self, pkg):
-        return pkg.name() in self.ls()
+    def __contains__(self, other):
+        try:
+            # if other is a cranserver.lib.package.Package
+            return other.filename in self.ls()
+        except AttributeError as e:
+            # otherwise
+            return other in self.ls()
 
-    def _update_packages(self, pkg):
-        with open(os.path.join(self.directory, self._PACKAGES), 'a') as f:
-            f.write(pkg.description())
-
-    def ls(self):
-        files = os.listdir(os.path.join(self.directory, "src/contrib/"))
-        return [f for f in files if 'PACKAGES' not in f]
+    def PACKAGES(self):
+        "Return PACKAGES file data."
+        fp = os.path.join(self.directory, 'src/contrib/', 'PACKAGES')
+        with open(fp, 'r') as f:
+            return f.read()
 
     def packages(self):
-        keys = self.ls()
-        return [self._file_to_pkg_dict(k) for k in keys]
+        return [self._fp_to_pkg_dict(fp) for fp in self.ls()]
 
-    def _pkg_tupl(self, key):
-        return key.split('/')[-1].replace('.tar.gz', '').split('_')
+    def _pkg_tupl(self, fp):
+        return fp.split('/')[-1].replace('.tar.gz', '').split('_')
 
-    def _filepath(self, key):
-        return os.path.join(self.directory, 'src/contrib', key)
-
-    def _file_to_pkg_dict(self, f):
-        _name, _version = self._pkg_tupl(f)
-        last_modified = time.ctime(os.path.getmtime(self._filepath(f)))
+    def _fp_to_pkg_dict(self, fp):
+        _name, _version = self._pkg_tupl(fp)
         return {
-            'key': f,
+            'key': fp,
             'name': _name,
             'version': _version,
-            'date': last_modified,
+            'date': None,
             'artifact_link': None
         }
 
-    def fetch(self, pkg):
-        fp = os.path.join(self.directory, "src/contrib/", pkg)
+    def ls(self):
+        files = os.listdir(os.path.join(self.directory, 'src/contrib/'))
+        return [f for f in files if 'PACKAGES' not in f]
+
+    def _set(self, pkg_id, fobj):
+        fp = os.path.join(self.directory, 'src/contrib/', pkg_id + '.tar.gz')
+        with open(fp, 'wb') as f:
+            shutil.copyfileobj(fobj, f, length=16384)
+
+    def fetch(self, pkg_id):
+        fp = os.path.join(self.directory, 'src/contrib/', pkg_id + '.tar.gz')
         return open(fp, 'rb')
 
     def push(self, pkg):
-        # TODO(troy.defreitas@uptake.com) Implement rollback if either step fails
-        fp = os.path.join(self.directory, "src/contrib/", pkg.name())
-        with open(fp, 'wb') as f:
-            pkg._fileobj.save(f)
-        self._update_packages(pkg)
+        return self._set(pkg.id, pkg.fileobj)
