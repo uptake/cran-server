@@ -22,7 +22,8 @@ setup(
         'boto3',
         'botocore',
         'fasteners',
-        'flask'
+        'flask',
+        'python-debian'
     ],
     extras_require={
         'test': [
