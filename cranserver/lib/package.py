@@ -19,6 +19,9 @@ class Description(Deb822):
     def date(self):
         return self.get('Date')
 
+    def key(self):
+        return self.name + '_' + self.version
+
     def summary(self):
         return {
             'key': self.name + '_' + self.version,
