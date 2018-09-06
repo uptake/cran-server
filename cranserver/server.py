@@ -21,10 +21,6 @@ from lib.registry import DuplicatePkgException
 CONFLICT_CODE = 409
 LOCK_CODE = 500
 
-SRC_PACKAGES_FILE_LOC = 'src/contrib/PACKAGES'
-LOCK_FILE_LOC = 'lockfile.lockfile'
-LOCK_TIMEOUT = 5
-
 STORAGE_BACKEND = os.getenv('STORAGE_BACKEND', 'filesystem')
 
 if STORAGE_BACKEND == 'filesystem':
