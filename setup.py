@@ -21,7 +21,6 @@ setup(
     install_requires=[
         'boto3',
         'botocore',
-        'fasteners',
         'flask',
         'python-debian'
     ],
