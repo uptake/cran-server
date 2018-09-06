@@ -25,7 +25,6 @@ SRC_PACKAGES_FILE_LOC = 'src/contrib/PACKAGES'
 LOCK_FILE_LOC = 'lockfile.lockfile'
 LOCK_TIMEOUT = 5
 
-DEFAULT_BUCKET = os.getenv('DEFAULT_BUCKET')
 STORAGE_BACKEND = os.getenv('STORAGE_BACKEND', 'filesystem')
 
 if STORAGE_BACKEND == 'filesystem':
@@ -34,13 +33,13 @@ if STORAGE_BACKEND == 'filesystem':
     # TODO Make ./src/contrib directory if it doesn't exist
     src_contrib_storage = FileStorage(f'{fsloc}/src/contrib')
 elif STORAGE_BACKEND == 'aws' or STORAGE_BACKEND == 's3':
+    DEFAULT_BUCKET = os.getenv('DEFAULT_BUCKET')
     from contrib.s3 import S3Storage
     src_contrib_storage = S3Storage()
 else:
     raise Exception(f'Storage backend "{STORAGE_BACKEND}" not supported')
 
 src_contrib = Registry(src_contrib_storage)
-
 
 app = Flask(__name__, template_folder='templates', static_folder='static')
 
