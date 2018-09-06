@@ -14,8 +14,6 @@ from flask import send_file
 from flask import abort
 from flask import render_template
 
-import fasteners
-
 from lib.package import Package
 from lib.registry import Registry
 from lib.registry import DuplicatePkgException
@@ -33,14 +31,15 @@ STORAGE_BACKEND = os.getenv('STORAGE_BACKEND', 'filesystem')
 if STORAGE_BACKEND == 'filesystem':
     from lib.storage import FileStorage
     fsloc = os.getenv('CRANSERVER_FS_LOC', '/opt/cran')
-    storage = FileStorage(fsloc)
+    # TODO Make ./src/contrib directory if it doesn't exist
+    src_contrib_storage = FileStorage(f'{fsloc}/src/contrib')
 elif STORAGE_BACKEND == 'aws' or STORAGE_BACKEND == 's3':
     from contrib.s3 import S3Storage
-    storage = S3Storage()
+    src_contrib_storage = S3Storage()
 else:
-    raise "Storage backend '{}' not supported".format(STORAGE_BACKEND)
+    raise Exception(f'Storage backend "{STORAGE_BACKEND}" not supported')
 
-registry = Registry(storage)
+src_contrib = Registry(src_contrib_storage)
 
 
 app = Flask(__name__, template_folder='templates', static_folder='static')
@@ -60,10 +59,9 @@ app = Flask(__name__, template_folder='templates', static_folder='static')
 #           |- <binaries>
 #   |- windows
 
-
 @app.route('/available', methods=['GET'])
 def get_available():
-    packages = (p.summary() for p in registry.values())
+    packages = (p.summary() for p in src_contrib.values())
     pkg_dict = {}
     for p in packages:
         if not p:
@@ -71,7 +69,7 @@ def get_available():
         pkg_name = p.get('name')
         pkg_version = p.get('version')
         pkg_date = p.get('date')
-        p['date'] = pkg_date.isoformat()  # convert date to string for JSON
+        p['date'] = pkg_date.isoformat() if pkg_date else None
         if pkg_dict.get(pkg_name) is not None:
             pkg_dict[pkg_name].append(p)
         else:
@@ -80,7 +78,6 @@ def get_available():
     results = list({'name': k, 'artifacts': sorted(v, key=f, reverse=True)}
                    for k, v in pkg_dict.items())
     return json.dumps(results)
-
 
 @app.route('/', methods=['GET'])
 def home_get():
@@ -91,30 +88,19 @@ def home_post():
     if 'file' not in request.files:
         return redirect(request.url)
     file = request.files['file']
-
     if file:
-        a_lock = fasteners.InterProcessLock(LOCK_FILE_LOC)
-        gotten = a_lock.acquire(
-            blocking=True, delay=0.2, timeout=LOCK_TIMEOUT)
+        pkg = Package.from_tarball(file)
+        file.seek(0)
         try:
-            if gotten:
-                pkg = Package.from_tarball(file)
-                file.seek(0)
-                try:
-                    registry.push(pkg)
-                except DuplicatePkgException:
-                    abort(CONFLICT_CODE, 'This package version already exists on the server.')
-                return 'OK\n'
-            else:
-                print('Locking Error on Package Upload')
-                abort(500, 'The server is busy, please try again')
-        finally:
-            if gotten:
-                a_lock.release()
+            src_contrib.push(pkg)
+        except DuplicatePkgException:
+            abort(CONFLICT_CODE, 'This package version already exists on the server.')
+        return 'OK\n'
+    return abort(400, 'You must upload a tarball file to use the POST endpoint.')
 
 @app.route('/src/contrib/PACKAGES')
 def packages_file():
-    return registry.PACKAGES()
+    return src_contrib.PACKAGES()
 
 @app.route('/src/contrib/PACKAGES.<ext>')
 def packages_file_rest(*args, **kwargs):
@@ -123,10 +109,9 @@ def packages_file_rest(*args, **kwargs):
 @app.route('/src/<path:path>.tar.gz', methods=['GET'])
 def packages(path):
     pkg_name = os.path.basename(path)
-    pkg = registry.fetch(pkg_name)
+    pkg = src_contrib.fetch(pkg_name)
     return send_file(BytesIO(pkg.fileobj), mimetype='application/octet-stream')
-
 
 @app.route('/health')
 def health():
-    return '', 200
+    return 'OK\n', 200
