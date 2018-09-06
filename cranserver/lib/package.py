@@ -2,6 +2,36 @@ import tarfile
 import re
 import os
 
+from debian.deb822 import Deb822
+
+
+class Description(Deb822):
+
+    @property
+    def name(self):
+        return self['Package']
+
+    @property
+    def version(self):
+        return self['Version']
+
+    @property
+    def date(self):
+        return self.get('Date')
+
+    def key(self):
+        return self.name + '_' + self.version
+
+    def summary(self):
+        return {
+            'key': self.name + '_' + self.version,
+            'name': self.name,
+            'version': self.version,
+            'date': self.date,
+            'artifact_link': None
+        }
+
+
 class Package:
 
     def __init__(self, fileobj):
@@ -15,7 +45,7 @@ class Package:
         if not self._description:
             self._description = self._extract_desc(self._untar())
             self._fileobj.seek(0)
-        return self._description
+        return Description(self._description)
 
     @property
     def fileobj(self):

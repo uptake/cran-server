@@ -4,7 +4,7 @@ import sys
 import tarfile
 import re
 import json
-from io import StringIO
+from io import StringIO, BytesIO
 
 from flask import Flask
 from flask import request
@@ -17,6 +17,8 @@ from flask import render_template
 import fasteners
 
 from lib.package import Package
+from lib.registry import Registry
+from lib.registry import DuplicatePkgException
 
 CONFLICT_CODE = 409
 LOCK_CODE = 500
@@ -30,12 +32,15 @@ STORAGE_BACKEND = os.getenv('STORAGE_BACKEND', 'filesystem')
 
 if STORAGE_BACKEND == 'filesystem':
     from lib.storage import FileStorage
-    storage = FileStorage("/opt/cran/")
+    fsloc = os.getenv('CRANSERVER_FS_LOC', '/opt/cran')
+    storage = FileStorage(fsloc)
 elif STORAGE_BACKEND == 'aws' or STORAGE_BACKEND == 's3':
     from contrib.s3 import S3Storage
     storage = S3Storage()
 else:
     raise "Storage backend '{}' not supported".format(STORAGE_BACKEND)
+
+registry = Registry(storage)
 
 
 app = Flask(__name__, template_folder='templates', static_folder='static')
@@ -58,7 +63,7 @@ app = Flask(__name__, template_folder='templates', static_folder='static')
 
 @app.route('/available', methods=['GET'])
 def get_available():
-    packages = storage.packages()
+    packages = (p.summary() for p in registry.values())
     pkg_dict = {}
     for p in packages:
         if not p:
@@ -77,52 +82,50 @@ def get_available():
     return json.dumps(results)
 
 
-@app.route('/', methods=['GET', 'POST'])
-def home():
-    if request.method == "GET":
-        return render_template('index.html')
-    elif request.method == "POST":
-        if 'file' not in request.files:
-            return redirect(request.url)
-        file = request.files['file']
+@app.route('/', methods=['GET'])
+def home_get():
+    return render_template('index.html')
 
-        if file:
-            a_lock = fasteners.InterProcessLock(LOCK_FILE_LOC)
-            gotten = a_lock.acquire(
-                blocking=True, delay=0.2, timeout=LOCK_TIMEOUT)
-            try:
-                if gotten:
-                    file_loc = os.path.join('src/contrib', file.filename)
-                    pkg = Package.from_tarball(file)
-                    file.seek(0)
-                    if pkg in storage:
-                        abort(CONFLICT_CODE, 'This package version already exists on the server.')
-                    storage.push(pkg)
-                    return 'OK'
-                else:
-                    print('Locking Error on Package Upload')
-                    abort(500, 'The server is busy, please try again')
-            finally:
-                if gotten:
-                    a_lock.release()
+@app.route('/', methods=['POST'])
+def home_post():
+    if 'file' not in request.files:
+        return redirect(request.url)
+    file = request.files['file']
 
+    if file:
+        a_lock = fasteners.InterProcessLock(LOCK_FILE_LOC)
+        gotten = a_lock.acquire(
+            blocking=True, delay=0.2, timeout=LOCK_TIMEOUT)
+        try:
+            if gotten:
+                pkg = Package.from_tarball(file)
+                file.seek(0)
+                try:
+                    registry.push(pkg)
+                except DuplicatePkgException:
+                    abort(CONFLICT_CODE, 'This package version already exists on the server.')
+                return 'OK\n'
+            else:
+                print('Locking Error on Package Upload')
+                abort(500, 'The server is busy, please try again')
+        finally:
+            if gotten:
+                a_lock.release()
 
-@app.route('/src/<path:path>', methods=['GET'])
+@app.route('/src/contrib/PACKAGES')
+def packages_file():
+    return registry.PACKAGES()
+
+@app.route('/src/contrib/PACKAGES.<ext>')
+def packages_file_rest(*args, **kwargs):
+    abort(404)
+
+@app.route('/src/<path:path>.tar.gz', methods=['GET'])
 def packages(path):
-    a_lock = fasteners.InterProcessLock(LOCK_FILE_LOC)
-    gotten = a_lock.acquire(blocking=True, delay=0.2, timeout=LOCK_TIMEOUT)
-    try:
-        if gotten:
-            pkg_name = os.path.basename(path)
-            pkg_fobj = storage.fetch(pkg_name)
-            with storage.fetch(pkg_name) as pkg_fobj:
-                return send_file(pkg_fobj, mimetype='application/octet-stream')
-        else:
-            print('Locking Error on Package Upload')
-            abort(LOCK_CODE, 'The server is busy, please try again')
-    finally:
-        if gotten:
-            a_lock.release()
+    pkg_name = os.path.basename(path)
+    import sys; print(pkg_name, file=sys.stderr)
+    pkg = registry.fetch(pkg_name)
+    return send_file(BytesIO(pkg.fileobj), mimetype='application/octet-stream')
 
 
 @app.route('/health')
