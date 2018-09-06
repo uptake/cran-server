@@ -18,11 +18,6 @@ port='8081'
 
 url="http://$host:$port"
 
-cd $src_base
-
-# First install the app
-python setup.py install
-
 # set environment variables for flask
 export FLASK_APP="$src_base/cranserver/server.py"
 export PYTHONPATH="$src_base/cranserver/"

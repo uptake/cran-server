@@ -37,7 +37,7 @@ class TestPackage:
 
     def test_description(self, pkg):
         desc = pkg.description()
-        assert desc == PKG_DESCRIPTION
+        assert desc.dump() == PKG_DESCRIPTION
 
     def test_version(self, pkg):
         assert pkg.version == PKG_VERSION

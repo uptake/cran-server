@@ -1,19 +1,16 @@
 import pytest
-from cranserver.lib.package import Package
-from cranserver.lib.storage import FileStorage
+from cranserver.lib.storage import *
+from cranserver.lib.package import *
 
 @pytest.fixture
 def fs():
     return FileStorage('.')
 
 
-class TestFileStorage:
+class TestInMemoryStorage:
 
-    def test_push_and_fetch(self, fs, pkg):
-        fs.push(pkg)
-        with fs.fetch('httr_1.3.1') as f:
-            pkg = Package.from_tarball(f)
-            assert pkg.name == 'httr'
-
-    def test_contains(self, fs, pkg):
-        assert pkg in fs
+    def test_set(self, pkg):
+        storage = InMemoryStorage()
+        key = '/src/contrib/httr_1.3.1.tar.gz'
+        storage[key] = pkg
+        assert key in storage
