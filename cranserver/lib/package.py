@@ -43,9 +43,9 @@ class Package:
 
     def description(self):
         if not self._description:
-            self._description = self._extract_desc(self._untar())
+            self._description = Description(self._extract_desc(self._untar()))
             self._fileobj.seek(0)
-        return Description(self._description)
+        return self._description
 
     @property
     def fileobj(self):
@@ -53,14 +53,17 @@ class Package:
 
     @property
     def name(self):
-        return self._attr_from_description('Package', self.description())
+        return self.description().name
 
     @property
     def version(self):
-        return self._attr_from_description('Version', self.description())
+        return self.description().version
 
     @property
     def id(self):
+        return self.key()
+
+    def key(self):
         return self.name + '_' + self.version
 
     @property
