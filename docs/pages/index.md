@@ -1,3 +1,7 @@
+---
+permalink: /
+---
+
 # Why You Should Run `cran-server`
 
 ## Table of contents
@@ -41,7 +45,7 @@ We’ve found that using a package repository provides several nice benefits ove
   * Though not necessary, `cran-server` also supports hosting versions of packages from public CRAN. Because many packages only enforce minimum dependency versions, it is often easy to get surprised by breaking changes in external dependencies. By freezing the versions of external packages that your team uses in `cran-server` you can minimize the risk of public package updates breaking your code and instead update carefully on your schedule.
 
 ### Store packages on a networked file system or an FTP server <a name="ftp"></a>
-As described in the [official documentation](https://cran.r-project.org/doc/manuals/R-admin.html#Setting-up-a-package-repository), it is possible to just use a networked file system or an FTP server. Choosing NFS or FTP, however, requires you or your organization to maintain your own infrastructure. `cran-server` _can_ be run on-prem on a single server and it can also just as easily be run on a cluster or in the cloud using object storage like [Amazon S3](https://aws.amazon.com/s3/) and services such as [Google Kubernetes Engine](https://cloud.google.com/kubernetes-engine/) or [Amazon ECS](https://aws.amazon.com/ecs/). Further, we find releasing packages through the `cran-server` Web API to be a more sustainable system than managing files directly like you would on an FTP server. The API automatically takes care of steps like validating the artifact and updating package manifests, simplifying the process for users and maintainers. 
+As described in the [official documentation](https://cran.r-project.org/doc/manuals/R-admin.html#Setting-up-a-package-repository), it is possible to just use a networked file system or an FTP server. Choosing NFS or FTP, however, requires you or your organization to maintain your own infrastructure. `cran-server` _can_ be run on-prem on a single server and it can also just as easily be run on a cluster or in the cloud using object storage like [Amazon S3](https://aws.amazon.com/s3/) and services such as [Google Kubernetes Engine](https://cloud.google.com/kubernetes-engine/) or [Amazon ECS](https://aws.amazon.com/ecs/). Further, we find releasing packages through the `cran-server` Web API to be a more sustainable system than managing files directly like you would on an FTP server. The API automatically takes care of steps like validating the artifact and updating package manifests, simplifying the process for users and maintainers.
 
 ### Use a paid service like [Rstudio Package Manager](https://www.rstudio.com/products/package-manager/) <a name="rstudio"></a>
 Rstudio Package Manager is new and appears to have a few very promising features. Though, it is a young, paid, closed-source solution. `cran-server` has been running internally at Uptake for nearly 2 years, serving thousands of downloads and over 60 packages. And, it’s free, lightweight and [open source](https://github.com/UptakeOpenSource/cran-server)!
