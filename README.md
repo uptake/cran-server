@@ -2,7 +2,7 @@
 
 ![Build Status](https://travis-ci.org/UptakeOpenSource/cran-server.svg?branch=master)
 
-A self hosted CRAN-like R package repository for the impatient.
+A self hosted CRAN-like R package repository.
 
 - [Quick Start](#quick-start)
 - [Features](#features)
@@ -30,7 +30,7 @@ docker run --name cran --rm -d -p 8080:80 cran-server
 
 ```
 # On Mac
-open http://localhost:8080 
+open http://localhost:8080
 ```
 You're all set!
 
