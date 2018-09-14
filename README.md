@@ -1,5 +1,7 @@
 # cran-server
 
+A self hosted CRAN-like R package repository for the impatient.
+
 - [Quick Start](#quick-start)
 - [Features](#features)
 - [Installation](#installation)
