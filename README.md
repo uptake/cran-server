@@ -89,8 +89,8 @@ By default, `cran-server` uses file system storage, but in a production environm
 STORAGE_BACKEND='aws'
 AWS_ACCESS_KEY_ID=<YOUR_AWS_ACCESS_KEY_ID_HERE>
 AWS_SECRET_ACCESS_KEY=<YOUR_AWS_SECRET_ACCESS_KEY_HERE>
-AWS_DEFAULT_REGION=us-west-2
-AWS_DEFAULT_BUCKET=your-default-bucket
+AWS_DEFAULT_REGION=<YOUR_PREFERED_REGION_HERE>
+AWS_DEFAULT_BUCKET=<YOUR_PREFERRED_DEFAULT_BUCKET_HERE>
 ```
 
 The environment file can then be sourced when running from docker:
