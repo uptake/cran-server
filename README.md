@@ -24,6 +24,12 @@ docker build -t cran-server .
 docker run --name cran --rm -d -p 8080:80 cran-server
 ```
 
+3. Visit in your browser
+
+```
+# on mac
+open http://localhost:8080 
+```
 You're all set!
 
 
@@ -31,6 +37,7 @@ You're all set!
 
 - **Ready**: supports AWS S3 and file system storage out of the box
 - **Extensible**: we made it really easy to support other storage backends
+- **Web UI**: allows you to see and search published packages
 
 
 ## Installation
