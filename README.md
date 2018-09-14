@@ -1,5 +1,7 @@
 # cran-server
 
+![Build Status](https://travis-ci.org/UptakeOpenSource/cran-server.svg?branch=master)
+
 A self hosted CRAN-like R package repository for the impatient.
 
 - [Quick Start](#quick-start)
