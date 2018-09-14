@@ -1,5 +1,6 @@
 from __future__ import print_function
 import os
+from pathlib import Path
 import sys
 import tarfile
 import re
@@ -14,9 +15,9 @@ from flask import send_file
 from flask import abort
 from flask import render_template
 
-from lib.package import Package
-from lib.registry import Registry
-from lib.registry import DuplicatePkgException
+from cranserver.lib.package import Package
+from cranserver.lib.registry import Registry
+from cranserver.lib.registry import DuplicatePkgException
 
 CONFLICT_CODE = 409
 LOCK_CODE = 500
@@ -24,13 +25,13 @@ LOCK_CODE = 500
 STORAGE_BACKEND = os.getenv('STORAGE_BACKEND', 'filesystem')
 
 if STORAGE_BACKEND == 'filesystem':
-    from lib.storage import FileStorage
-    fsloc = os.getenv('CRANSERVER_FS_LOC', '/opt/cran')
+    from cranserver.lib.storage import FileStorage
+    fsloc = os.getenv('CRANSERVER_FS_LOC', '.')
     # TODO Make ./src/contrib directory if it doesn't exist
-    src_contrib_storage = FileStorage(f'{fsloc}/src/contrib')
+    src_contrib_storage = FileStorage(Path(fsloc) / 'src/contrib')
 elif STORAGE_BACKEND == 'aws' or STORAGE_BACKEND == 's3':
     DEFAULT_BUCKET = os.getenv('DEFAULT_BUCKET')
-    from contrib.s3 import S3Storage
+    from cranserver.contrib.s3 import S3Storage
     src_contrib_storage = S3Storage()
 else:
     raise Exception(f'Storage backend "{STORAGE_BACKEND}" not supported')
@@ -94,3 +95,7 @@ def packages(path):
 @app.route('/health')
 def health():
     return 'OK\n', 200
+
+
+if __name__ == '__main__':
+    app.run()
