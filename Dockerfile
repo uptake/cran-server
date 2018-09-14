@@ -19,4 +19,4 @@ ENV PYTHONPATH /opt/cranserver/
 
 EXPOSE 8000
 
-CMD gunicorn -w 4 -b "0.0.0.0:80" --timeout 1800 server:app
+CMD gunicorn -w 1 -b "0.0.0.0:80" --timeout 1800 server:app
