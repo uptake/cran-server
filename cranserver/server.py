@@ -88,8 +88,10 @@ def packages_file_rest(*args, **kwargs):
 
 @app.route('/src/<path:path>.tar.gz', methods=['GET'])
 def packages(path):
-    pkg_name = os.path.basename(path)
-    pkg = src_contrib.fetch(pkg_name)
+    pkg_key = os.path.basename(path)
+    pkg = src_contrib.fetch(pkg_key)
+    if not pkg:
+        abort(404)
     return send_file(BytesIO(pkg.fileobj), mimetype='application/octet-stream')
 
 @app.route('/health')

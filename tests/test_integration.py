@@ -58,4 +58,11 @@ def test_post_2nd_pkg(client, stringr):
 def test_get_pkg(client, stringr):
     resp = client.get('/src/contrib/stringr_1.3.1.tar.gz')
     assert resp.data == stringr.read()
-    
+
+def test_pkg_conflict(client, stringr):
+    resp = client.post('/', data={'file': (stringr, 'stringr_1.3.1.tar.gz')})
+    assert resp.status_code == 409
+
+def test_pkg_notfound(client):
+    resp = client.get('/src/contrib/dplyr_0.1.1.tar.gz')
+    assert resp.status_code == 404

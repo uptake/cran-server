@@ -40,7 +40,10 @@ class Registry(dict):
         self._storage['PACKAGES'] = BytesIO(bytes(self.PACKAGES(), 'utf8'))
 
     def fetch(self, pkg_key):
-        return Package.from_tarball(self._storage[pkg_key])
+        try:
+            return Package.from_tarball(self._storage[pkg_key])
+        except KeyError:
+            return None
 
     def PACKAGES(self):
         return '\n'.join(v.dump() for _, v in self.items())
