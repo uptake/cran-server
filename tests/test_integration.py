@@ -1,3 +1,5 @@
+import os
+
 import pytest
 import requests
 
@@ -21,6 +23,8 @@ def httr():
 @pytest.fixture
 def client():
     app.config['TESTING'] = True
+    if not os.path.exists('src/contrib'):
+        os.mkdir('./src/contrib')
     client = app.test_client()
     yield client
 
