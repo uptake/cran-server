@@ -1,9 +1,9 @@
 FROM continuumio/miniconda3
 MAINTAINER Troy de Freitas "troy.defreitas@uptake.com", Nick Paras "nick.paras@uptake.com"
 
-RUN apt-get update -y && apt-get install -y python3-pip
+RUN apt-get update -y
 
-RUN pip3 install flask boto3 gunicorn fasteners
+RUN pip install flask boto3 gunicorn python-debian
 
 RUN mkdir -p "/opt/cran/uploads" && \
     mkdir -p "/opt/cran/src/contrib/" && \
