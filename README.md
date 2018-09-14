@@ -27,7 +27,7 @@ docker run --name cran --rm -d -p 8080:80 cran-server
 3. Visit in your browser
 
 ```
-# on mac
+# On Mac
 open http://localhost:8080 
 ```
 You're all set!

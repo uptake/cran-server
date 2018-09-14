@@ -39,21 +39,6 @@ src_contrib = Registry(src_contrib_storage)
 
 app = Flask(__name__, template_folder='templates', static_folder='static')
 
-# cran
-# |- src
-#   |- contrib
-#      |- PACKAGES
-#      |- PACKAGES.gz
-#      |- * all tarballs
-# |- bin
-#   |- macosx
-#     |- mavericks
-#       |- contrib
-#       |- {R-VERSION}
-#         |- packages
-#           |- <binaries>
-#   |- windows
-
 @app.route('/available', methods=['GET'])
 def get_available():
     packages = (p.summary() for p in src_contrib.values())
@@ -62,7 +47,6 @@ def get_available():
         if not p:
             continue
         pkg_name = p.get('name')
-        pkg_version = p.get('version')
         pkg_date = p.get('date')
         p['date'] = pkg_date.isoformat() if pkg_date else None
         if pkg_dict.get(pkg_name) is not None:
