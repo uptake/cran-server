@@ -27,7 +27,8 @@ setup(
     extras_require={
         'test': [
             'pytest',
-            'coverage'
+            'coverage',
+            'requests'
         ]
     }
 )
