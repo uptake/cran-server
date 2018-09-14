@@ -4,6 +4,8 @@
 
 A self hosted CRAN-like R package repository.
 
+![demo-gif](docs/cran-server-demo.gif)
+
 - [Quick Start](#quick-start)
 - [Features](#features)
 - [Installation](#installation)
