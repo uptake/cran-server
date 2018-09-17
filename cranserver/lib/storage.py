@@ -1,32 +1,31 @@
 import os
 import shutil
 import time
+from pathlib import Path
+from collections.abc import MutableMapping
 
 
-class Storage(dict):
-    """
-    Storage is just a special dict.
-
-    :key:   should be a string key
-    :value: should be a stream of bytes
-    """
+class Storage(MutableMapping):
 
     def PACKAGES(self):
-        raise NotImplementedError
+        return self['PACKAGES']
 
 
-class InMemoryStorage(Storage):
+class InMemoryStorage(dict, Storage):
     pass
 
 
 class FileStorage(Storage):
 
-
     def __init__(self, directory):
         self.directory = directory
 
     def __iter__(self):
-        return os.listdir(self.directory)
+    # TODO When iterating, you shouldn't include the PACKAGES file
+        return iter(os.listdir(self.directory))
+
+    def __len__(self):
+        return len(os.listdir(self.directory))
 
     def __getitem__(self, pkg_id):
         fp = os.path.join(self.directory, pkg_id + '.tar.gz')
@@ -41,5 +40,5 @@ class FileStorage(Storage):
         with open(fp, 'wb') as f:
             shutil.copyfileobj(fobj, f, length=16384)
 
-    def PACKAGES(self):
-        return self.get('PACKAGES')
+    def __delitem__(self, pkg_id):
+        os.remove(Path(self.directory) / (pkg_id + 'tar.gz'))

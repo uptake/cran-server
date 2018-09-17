@@ -14,48 +14,30 @@ class S3Storage(Storage):
         s3 = boto3.resource('s3')
         self._bucket_loc = bucket_loc or os.getenv('DEFAULT_BUCKET')
         self.bucket = s3.Bucket(self._bucket_loc)
+        
+    def __iter__(self):
+        prefix = '/src/contrib'
+        objs = self.bucket.objects.filter(Prefix=prefix)
+        for el in objs:
+            yield el.key
 
-    def _objects(self, dir_prefix='dev'):
-        prefix = dir_prefix + '/src/contrib'
-        return self.bucket.objects.filter(Prefix=prefix)
+    def __len__(self):
+        return len(list(self.__iter__()))
 
-    def ls(self, dir_prefix='dev'):
-        return [o.key for o in self._objects() if 'PACKAGES' not in o.key]
-
-    def packages(self):
-        return [self._s3obj_to_pkg_dict(obj) for obj in self._objects()]
-
-    def _pkg_tupl(self, obj):
-        return obj.key.split('/')[-1].replace('.tar.gz', '').split('_')
-
-    def _s3obj_to_pkg_dict(self, obj):
-        try:
-            _name, _version = self._pkg_tupl(obj)
-            return {
-                'key': obj.key,
-                'name': _name,
-                'version': _version,
-                'date': obj.last_modified.date(),
-                'artifact_link': None
-            }
-        except ValueError as e:
-            return None
-
-    @contextmanager
-    def fetch(self, pkg):
+    def __getitem__(self, pkg_id):
         target = io.StringIO()
-        self.bucket.download_fileobj(pkg, target)
-        yield target
+        self.bucket.download_fileobj(pkg_id, target)
+        return target
 
-    def push(self, pkg):
-        self.bucket.upload_fileobj(pkg._fileobj, pkg.name())
+    def __setitem__(self, pkg_id, fobj):
+        self.bucket.upload_fileobj(fobj, pkg_id)
+    
+    def __delitem__(self, pkg_id):
+        pass
 
 
 if __name__ == '__main__':
     s = S3Storage()
 
-    for p in s.ls():
-        print(p)
-
-    for p in s.packages():
+    for p in s:
         print(p)
