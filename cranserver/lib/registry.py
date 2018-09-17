@@ -10,7 +10,7 @@ class DuplicatePkgException(Exception): pass
 class Registry(dict):
 
     def __init__(self, storage=None):
-        if storage:
+        if storage is not None:
             # On init, get the PACKAGES file
             pkgs = storage.PACKAGES()
             if pkgs:
