@@ -8,7 +8,7 @@ from collections.abc import MutableMapping
 class Storage(MutableMapping):
 
     def PACKAGES(self):
-        return self['PACKAGES']
+        return self.get('PACKAGES')
 
 
 class InMemoryStorage(dict, Storage):
