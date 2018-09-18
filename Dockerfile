@@ -13,7 +13,7 @@ COPY cranserver/ /opt/cranserver/
 
 WORKDIR /opt/cranserver
 
-RUN python setup.py
+RUN python setup.py install
 
 ENV FLASK_APP /opt/cranserver/server.py
 
