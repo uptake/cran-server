@@ -3,8 +3,6 @@ MAINTAINER Troy de Freitas "troy.defreitas@uptake.com", Nick Paras "nick.paras@u
 
 RUN apt-get update -y
 
-RUN pip install flask boto3 gunicorn python-debian
-
 RUN mkdir -p "/opt/cran/uploads" && \
     mkdir -p "/opt/cran/src/contrib/" && \
     mkdir -p "/opt/static" && \
@@ -12,6 +10,10 @@ RUN mkdir -p "/opt/cran/uploads" && \
     touch "/opt/cran/src/contrib/PACKAGES"
 
 COPY cranserver/ /opt/cranserver/
+
+WORKDIR /opt/cranserver
+
+RUN python setup.py
 
 ENV FLASK_APP /opt/cranserver/server.py
 
