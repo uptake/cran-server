@@ -1,7 +1,6 @@
 import pytest
 
-from cranserver.lib.package import *
-from cranserver.lib.registry import *
+from cranserver.lib import Registry, DuplicatePkgException, Description
 
 @pytest.fixture
 def description(pkg_description):
