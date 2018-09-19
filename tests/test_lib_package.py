@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import pytest
 
-from cranserver.lib.package import Package
+from cranserver.lib import Package
 
 PKG_VERSION = "1.3.1"
 PKG_DESCRIPTION = """Package: httr

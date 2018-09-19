@@ -1,6 +1,6 @@
 import pytest
-from cranserver.lib.storage import *
-from cranserver.lib.package import *
+
+from cranserver.lib import FileStorage, InMemoryStorage
 
 @pytest.fixture
 def fs():
