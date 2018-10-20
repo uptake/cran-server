@@ -22,10 +22,8 @@ def httr():
     return fetch_package('httr', version='1.3.1')
 
 @pytest.fixture
-def client():
+def client(cran_src_dir_empty):
     app.config['TESTING'] = True
-    if not os.path.exists('src/contrib'):
-        os.makedirs(Path('./src/contrib'))
     client = app.test_client()
     yield client
 
