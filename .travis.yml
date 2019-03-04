@@ -7,16 +7,18 @@ matrix:
       - os: linux
         python: 3.6
 
+before_install:
+  - .ci/setup.sh
+
 # Install cran-server
 install:
   - pip install .
 
 # Test cran-server
 script:
-  # Install libraries only needed by tests
-  - pip install requests
-  # Run tests
-  - python -m pytest
+  - python -m pytest --cov
+  - coverage report -m --fail-under=20
 
 after_success:
   - echo "tests passed"
+  - codecov
