@@ -14,3 +14,6 @@ __pycache__/
 # Others
 .cache
 *.tar.gz
+
+# code coverage
+**/.coverage

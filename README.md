@@ -1,6 +1,7 @@
 # cran-server
 
 ![Build Status](https://travis-ci.org/UptakeOpenSource/cran-server.svg?branch=master)
+[![codecov](https://codecov.io/gh/UptakeOpenSource/cran-server/branch/master/graph/badge.svg)](https://codecov.io/gh/UptakeOpenSource/cran-server)
 
 A self hosted CRAN-like R package repository.
 
