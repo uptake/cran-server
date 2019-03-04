@@ -27,7 +27,6 @@ STORAGE_BACKEND = os.getenv('STORAGE_BACKEND', 'filesystem')
 if STORAGE_BACKEND == 'filesystem':
     from cranserver.lib.storage import FileStorage
     fsloc = os.getenv('CRANSERVER_FS_LOC', '.')
-    # TODO Make ./src/contrib directory if it doesn't exist
     src_contrib_storage = FileStorage(Path(fsloc) / 'src/contrib')
 elif STORAGE_BACKEND == 'memory':
     src_contrib_storage = InMemoryStorage()

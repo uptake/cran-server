@@ -21,7 +21,6 @@ class FileStorage(Storage):
         self.directory = directory
 
     def __iter__(self):
-    # TODO When iterating, you shouldn't include the PACKAGES file
         return iter(os.listdir(self.directory))
 
     def __len__(self):
