@@ -1,6 +1,8 @@
 # cran-server
 
-![Build Status](https://travis-ci.org/UptakeOpenSource/cran-server.svg?branch=master)
+![](https://img.shields.io/badge/lifecycle-archived-red.svg)
+
+ > This repository has been [archived](https://help.github.com/en/github/creating-cloning-and-archiving-repositories/archiving-repositories).  This means it is **no longer actively maintained (no further PRs or issues will be considered)** but remains read-only for all users. See issue #77 for details on why this is archived.  Contact [opensource@uptake.com](mailto:opensource@uptake.com) if need be. 
 
 A self hosted CRAN-like R package repository.
 
